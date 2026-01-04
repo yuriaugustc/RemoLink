@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Enums\ErrorCode.cs~RF3889a7fb.TMP" />
+  </ItemGroup>
+
 </Project>
