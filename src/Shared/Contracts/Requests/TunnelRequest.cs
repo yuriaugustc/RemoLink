@@ -1,8 +1,9 @@
 ﻿namespace Shared.Contracts.Requests
 {
     public record class TunnelRequest(
-        string Key,
-        byte[] Payload,
-        bool IsBinary
+        string Method,
+        string Path,
+        IDictionary<string, string> Headers,
+        string JsonBody
     );
 }

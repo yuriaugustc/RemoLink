@@ -33,7 +33,7 @@ namespace Server.Controllers
                 return NotFound();
             }
 
-            TunnelRequest request = CreateFromRequest();
+            TunnelRequest request = await CreateFromRequest();
 
             using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
 
@@ -58,21 +58,36 @@ namespace Server.Controllers
                 );
             }
 
-            FillHttpResponse(response);
+            await FillHttpResponse(response);
 
             return Empty;
         }
 
-        private TunnelRequest CreateFromRequest()
+        private async Task<TunnelRequest> CreateFromRequest()
         {
-            Request;
-            //TODO: implement
+            using StreamReader reader = new(Request.Body);
+            return new TunnelRequest(
+                Method: Request.Method,
+                Path: Request.Path + Request.QueryString,
+                Headers: Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString()),
+                JsonBody: await reader.ReadToEndAsync()
+            );
         }
 
-        private void FillHttpResponse(TunnelResponse response)
+        private async Task FillHttpResponse(TunnelResponse response)
         {
-            Response;
-            //TODO: implement
+            Response.StatusCode = response.StatusCode;
+
+            foreach (KeyValuePair<string, string> header in response.Headers)
+            {
+                Response.Headers[header.Key] = header.Value;
+            }
+            
+            if (!string.IsNullOrEmpty(response.JsonBody))
+            {
+                Response.ContentType = "application/json";
+                await Response.WriteAsync(response.JsonBody);
+            }
         }
     }
 }

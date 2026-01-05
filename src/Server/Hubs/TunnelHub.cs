@@ -144,21 +144,5 @@ namespace Server.Hubs
 
             return Task.CompletedTask;
         }
-
-        public Task Tunnel(TunnelRequest message)
-        {
-            var tunnel = _tunnels.GetTunnelByKey(message.Key);
-            if (tunnel is null)
-            {
-                if (_logger.IsEnabled(LogLevel.Warning))
-                {
-                    _logger.LogWarning("Tunnel with key {Key} not found", message.Key);
-                }
-                
-                return Task.CompletedTask;
-            }
-            tunnel.LastActive = DateTime.UtcNow;
-            return Clients.Client(tunnel.ConnectionId).SendAsync("Tunnel", message.Payload);
-        }
     }
 }
