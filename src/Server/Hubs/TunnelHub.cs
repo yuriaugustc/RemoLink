@@ -144,5 +144,21 @@ namespace Server.Hubs
 
             return Task.CompletedTask;
         }
+
+        public Ping Ping(string key)
+        {
+            Tunnel? tunnel = _tunnels.GetTunnelByKey(key);
+            if (tunnel is null)
+            {
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning("Tunnel with key {Key} not found", key);
+                }
+                return Shared.Enums.Ping.NotFound;
+            }
+            tunnel.LastActive = DateTime.UtcNow;
+
+            return Shared.Enums.Ping.Pong;
+        }
     }
 }
