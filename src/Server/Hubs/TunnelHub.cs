@@ -43,9 +43,9 @@ namespace Server.Hubs
         }
 
         //TODO: Implement Register method when we have auth policy (will be called on --start)
-        public void Register(string key)
+        public bool Register(string key)
         {
-
+            return true;
         }
 
         public StopAckResponse Unregister(string key)
@@ -58,7 +58,7 @@ namespace Server.Hubs
             );
         }
 
-        public StartAckResponse Expose(ExposeRequest message)
+        public ExposeAckResponse Expose(ExposeRequest message)
         {
             #region Validations
             string badRequest = string.Empty;
@@ -81,7 +81,7 @@ namespace Server.Hubs
             } 
             else if (
                 !string.IsNullOrEmpty(message.Subdomain) && 
-                _tunnels.IsSubdomainTaken(message.Subdomain))
+                _tunnels.IsSubdomainTaken(message.Subdomain, message.Key))
             {
                 badRequest = "Subdomain in use";
                 errorCode = ErrorCode.SubdomainTaken;
@@ -89,7 +89,7 @@ namespace Server.Hubs
 
             if (badRequest != string.Empty)
             {
-                return StartAckResponse.Failure(
+                return ExposeAckResponse.Failure(
                     message: badRequest,
                     error: errorCode
                 );
@@ -110,9 +110,12 @@ namespace Server.Hubs
 
             string baseDomain = _config["Server:Domain"] ?? "localhost";
             string protocolStr = message.Protocol.ToString()!.ToLower();
-            string targetUrl = message.Protocol == Protocol.Tcp
-                ? $"{protocolStr}://{subdomain}.{baseDomain}:{message.Port}"
-                : $"{protocolStr}://{subdomain}.{baseDomain}";
+            string targetUrl = $"{protocolStr}://{subdomain}.{baseDomain}.io:{message.Port}";
+
+            bool alreadyExists = _tunnels.GetTunnelByKey(message.Key) is not null;
+            string responseMessage = alreadyExists 
+                ? "The previous tunnels have been deactivated."
+                : string.Empty;
 
             _tunnels.RegisterTunnel(new Tunnel(
                 key: message.Key,
@@ -123,7 +126,7 @@ namespace Server.Hubs
                 targetUrl: targetUrl
             ));
 
-            return StartAckResponse.Started(targetUrl);
+            return ExposeAckResponse.Started(targetUrl, responseMessage);
         }
 
         public Task ResumeTunnel(string key)

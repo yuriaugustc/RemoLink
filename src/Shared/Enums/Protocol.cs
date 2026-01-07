@@ -5,6 +5,7 @@
         Unknown,
         Http,
         Https,
-        Tcp
+        Tcp,
+        Udp
     }
 }

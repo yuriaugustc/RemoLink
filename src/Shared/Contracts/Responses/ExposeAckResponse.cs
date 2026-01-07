@@ -2,11 +2,11 @@
 
 namespace Shared.Contracts.Responses
 {
-    public record class StartAckResponse : AckResponse
+    public record class ExposeAckResponse : AckResponse
     {
         public string PublicUrl { get; init; }
 
-        public StartAckResponse(
+        public ExposeAckResponse(
             bool success,
             string publicUrl,
             string? message = null,
@@ -17,12 +17,12 @@ namespace Shared.Contracts.Responses
             PublicUrl = publicUrl;
         }
 
-        public static StartAckResponse Started(
+        public static ExposeAckResponse Started(
            string publicUrl,
            string? message = null
         ) => new(true, publicUrl, message);
 
-        public static StartAckResponse Failure(
+        public static ExposeAckResponse Failure(
             string? message = null,
             ErrorCode? error = null,
             object? data = default

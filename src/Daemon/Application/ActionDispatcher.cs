@@ -1,7 +1,7 @@
-﻿using Client.Domain.Commands;
-using Client.Services.Registry;
+﻿using Shared.Commands;
+using Daemon.Infra.Registry;
 
-namespace Client.Application
+namespace Daemon.Application
 {
     internal class ActionDispatcher
     {
@@ -23,31 +23,36 @@ namespace Client.Application
             return _paramsRegistry.InvokeAction(paramName, args);
         }
 
-        public Task<CommandResult> ExecuteActionAsync(string paramName, string[]? args = null)
+        public Task<CommandResult> ExecuteActionAsync(string paramName, string[]? args = null, CancellationToken token = default)
         {
-            return _paramsRegistry.InvokeActionAsync(paramName, args);
+            return _paramsRegistry.InvokeActionAsync(paramName, args, token);
         }
 
         private void InitializeParams()
         {
             _paramsRegistry.RegisterAction(
-                "help",
+                CommandName.Help,
                 _commandHandler.CommandHelpHandler
             );
 
             _paramsRegistry.RegisterAction(
-                "start",
+                CommandName.Start,
                 _commandHandler.CommandStartHandler
             );
 
             _paramsRegistry.RegisterAction(
-                "expose", 
+                CommandName.Expose, 
                 _commandHandler.CommandExposeHandler
             );
 
             _paramsRegistry.RegisterAction(
-                "stop",
+                CommandName.Stop,
                 _commandHandler.CommandStopHandler
+            );
+
+            _paramsRegistry.RegisterAction(
+                CommandName.Exit,
+                _commandHandler.CommandExitHandler
             );
         }
     }

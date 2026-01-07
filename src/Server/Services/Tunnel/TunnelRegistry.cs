@@ -18,8 +18,12 @@ namespace Server.Services.Tunnel
 
         public void UnregisterTunnel(string key)
         {
-            _subdomainKey.TryRemove(_tunnels[key].Subdomain, out _);
-            _connIdKey.TryRemove(_tunnels[key].ConnectionId, out _);
+            _tunnels.TryGetValue(key, out Tunnel? tunnel);
+            
+            if(tunnel is null) return;
+
+            _subdomainKey.TryRemove(tunnel.Subdomain, out _);
+            _connIdKey.TryRemove(tunnel.ConnectionId, out _);
             _tunnels.TryRemove(key, out _);
         }
 
@@ -36,9 +40,14 @@ namespace Server.Services.Tunnel
             _subdomainKey.TryRemove(tunnel.Subdomain, out _);
         }
 
-        public bool IsSubdomainTaken(string subdomain)
+        public bool IsSubdomainTaken(string subdomain, string? key = null)
         {
-            return _subdomainKey.ContainsKey(subdomain);
+            if(key is null) 
+                return _subdomainKey.ContainsKey(subdomain);
+
+            string? keyInSubdomain = GetKeyBySubdomain(subdomain);
+
+            return keyInSubdomain is not null && keyInSubdomain != key;
         }
 
         public Tunnel? GetTunnelByKey(string key)

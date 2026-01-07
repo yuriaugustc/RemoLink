@@ -1,6 +1,8 @@
-﻿namespace Client.Domain.Errors
+﻿using Shared.Enums;
+
+namespace Shared.Extensions
 {
-    internal static class ExitCodeExtensions
+    public static class ExitCodeExtensions
     {
         extension(ExitCode code)
         {

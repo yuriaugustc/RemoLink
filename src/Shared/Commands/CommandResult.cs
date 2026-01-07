@@ -1,15 +1,18 @@
-﻿using Client.Domain.Errors;
-using Client.Domain.Messages;
+﻿using Newtonsoft.Json;
+using Shared.Enums;
+using Shared.Extensions;
+using Shared.Messages;
 
-namespace Client.Domain.Commands
+namespace Shared.Commands
 {
-    internal sealed record CommandResult 
+    public sealed record CommandResult
     {
         public bool Success { get; }
         public string? Message { get; }
         public ExitCode ExitCode { get; }
 
-        private CommandResult(bool success, string? message, ExitCode exitCode)
+        [JsonConstructor]
+        public CommandResult(bool success, string? message, ExitCode exitCode)
         {
             Success = success;
             Message = message;
@@ -34,16 +37,29 @@ namespace Client.Domain.Commands
         public static CommandResult NotFound(string? message = null)
         {
             return new CommandResult(
-                false, 
-                message ?? DefaultReturnMessages.CommandNotFound, 
+                false,
+                message ?? DefaultReturnMessages.CommandNotFound,
                 ExitCode.NotFound
             );
         }
 
         public static CommandResult FromExitCode(ExitCode code, string? message = null)
         {
-            bool success = code == ExitCode.Success;
-            return new CommandResult(success, message, code);
+            return new CommandResult(code.IsSuccess, message, code);
+        }
+
+        public static CommandResult FromSerialized(string serialized)
+        {
+            return JsonConvert.DeserializeObject<CommandResult>(serialized)
+                ?? FromExitCode(
+                        ExitCode.DeserializationError,
+                        DefaultReturnMessages.DeserializationError
+                    );
+        }
+
+        public string Serialize()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 }

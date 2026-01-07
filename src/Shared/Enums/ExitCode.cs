@@ -1,12 +1,15 @@
-﻿namespace Client.Domain.Errors
+﻿namespace Shared.Enums
 {
-    internal enum ExitCode
+    public enum ExitCode
     {
         // Success
         Success = 0,
 
         // Generic failure
         Fail = 1,
+
+        // Deserialization error
+        DeserializationError = 2,
 
         // CLI argument errors (10–19)
         InvalidArgs = 10,
@@ -23,5 +26,4 @@
         ExposedAlready = 31,
         StoppedAlready = 32,
     }
-
 }

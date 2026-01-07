@@ -1,0 +1,19 @@
+[
+  {
+    "Name": "Both",
+    "Projects": [
+      {
+        "Path": "src\\Client\\Client.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\Server\\Server.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\Daemon\\Daemon.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

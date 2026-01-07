@@ -1,6 +1,6 @@
-﻿using Client.Domain.Commands;
+﻿using Shared.Commands;
 
-namespace Client.Services.Registry
+namespace Daemon.Infra.Registry
 {
     internal class ParamsRegistry
     {
@@ -11,11 +11,11 @@ namespace Client.Services.Registry
             return Instance.Value;
         }
 
-        private readonly Dictionary<string, Func<string[], Task<CommandResult>>> _paramsActions = [];
+        private readonly Dictionary<string, Func<string[], CancellationToken, Task<CommandResult>>> _paramsActions = [];
 
         public void RegisterAction(string paramName, Action action)
         {
-            _paramsActions[paramName] = (_) =>
+            _paramsActions[paramName] = (_, _) =>
             {
                 try
                 {
@@ -29,13 +29,13 @@ namespace Client.Services.Registry
             };
         }
 
-        public void RegisterAction(string paramName, Action<string[]> action)
+        public void RegisterAction(string paramName, Action<string[], CancellationToken> action)
         {
-            _paramsActions[paramName] = (args) =>
+            _paramsActions[paramName] = (args, token) =>
             {
                 try
                 {
-                    action(args);
+                    action(args, token);
                     return Task.FromResult(CommandResult.Ok());
                 }
                 catch (Exception ex)
@@ -45,21 +45,21 @@ namespace Client.Services.Registry
             };
         }
 
-        public void RegisterAction(string paramName, Func<string[], CommandResult> action)
+        public void RegisterAction(string paramName, Func<string[], CancellationToken, CommandResult> action)
         {
-            _paramsActions[paramName] = async(args) =>
+            _paramsActions[paramName] = async(args, token) =>
             {
-                return action(args);
+                return action(args, token);
             };
         }
 
-        public void RegisterAction(string paramName, Func<string[], Task> action)
+        public void RegisterAction(string paramName, Func<string[], CancellationToken, Task> action)
         {
-            _paramsActions[paramName] = async(args) =>
+            _paramsActions[paramName] = async(args, token) =>
             {
                 try
                 {
-                    await action(args);
+                    await action(args, token);
                     return CommandResult.Ok();
                 }
                 catch (Exception ex)
@@ -69,23 +69,23 @@ namespace Client.Services.Registry
             };
         }
 
-        public void RegisterAction(string paramName, Func<string[], Task<CommandResult>> action)
+        public void RegisterAction(string paramName, Func<string[], CancellationToken, Task<CommandResult>> action)
         {
             _paramsActions[paramName] = action;
         }
 
-        public async Task<CommandResult> InvokeActionAsync(string paramName, string[]? args = null)
+        public async Task<CommandResult> InvokeActionAsync(string paramName, string[]? args = null, CancellationToken token = default)
         {
             if (_paramsActions.TryGetValue(paramName, out var action))
             {
-                return await action(args ?? []);
+                return await action(args ?? [], token);
             }
             return CommandResult.NotFound();
         }
 
-        public CommandResult InvokeAction(string paramName, string[]? args = null)
+        public CommandResult InvokeAction(string paramName, string[]? args = null, CancellationToken token = default)
         {
-            return InvokeActionAsync(paramName, args)
+            return InvokeActionAsync(paramName, args, token)
                 .GetAwaiter()
                 .GetResult();
         }

@@ -5,13 +5,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>remolink</AssemblyName>
-    <AssemblyTitle>remolink</AssemblyTitle>
-    <Authors>yuriaugustc</Authors>
-    <PackageProjectUrl></PackageProjectUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/yuriaugustc/RemoLink</RepositoryUrl>
+    <AssemblyName>remolinkd</AssemblyName>
+    <AssemblyTitle>remolinkd</AssemblyTitle>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,15 +18,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
+    <ProjectReference Include="..\shared\Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Daemon\Daemon.csproj" />
-    <ProjectReference Include="..\shared\Shared.csproj" />
+	<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.1" />
   </ItemGroup>
 
 </Project>
